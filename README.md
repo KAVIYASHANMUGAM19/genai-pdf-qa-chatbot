@@ -76,7 +76,7 @@ print("Answer: ", result["result"])
 `````
 ### OUTPUT:
 
-<img width="750" height="171" alt="image" src="https://github.com/user-attachments/assets/fd0d3075-b692-45ab-b7f6-a08893b6fb1e" />
+<img width="750" height="171" alt="Screenshot 2025-09-26 090201" src="https://github.com/user-attachments/assets/d3c88d9d-10c3-4b4e-8e27-c871adba78f9" />
 
 
 
