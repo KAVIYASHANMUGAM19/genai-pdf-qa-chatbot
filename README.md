@@ -5,16 +5,80 @@ To design and implement a question-answering chatbot capable of processing and e
 
 ### PROBLEM STATEMENT:
 
+In many cases, users need specific information from large documents without manually searching through them. A question-answering chatbot can address this problem by:
+
+1. Parsing and indexing the content of a PDF document.
+2. Allowing users to ask questions in natural language.
+3. Providing concise and accurate answers based on the content of the document.
+  
+The implementation will evaluate the chatbot’s ability to handle diverse queries and deliver accurate responses.
+
 ### DESIGN STEPS:
 
-#### STEP 1:
+#### STEP 1: Load and Parse PDF
+Use LangChain's DocumentLoader to extract text from a PDF document.
 
-#### STEP 2:
+#### STEP 2: Create a Vector Store
+Convert the text into vector embeddings using a language model, enabling semantic search.
 
-#### STEP 3:
+#### STEP 3: Initialize the LangChain QA Pipeline
+Use LangChain's RetrievalQA to connect the vector store with a language model for answering questions.
+
+#### STEP 4: Handle User Queries
+Process user queries, retrieve relevant document sections, and generate responses.
+
+#### STEP 5: Evaluate Effectiveness
+Test the chatbot with a variety of queries to assess accuracy and reliability.
+
 
 ### PROGRAM:
+```
+import os
+from langchain.document_loaders import PyPDFLoader
 
+# File name
+file_path = "tech.pdf"
+
+# Confirm file existence and load
+if os.path.isfile(file_path):
+    loader = PyPDFLoader(file_path)
+    pages = loader.load()
+    print("PDF loaded successfully.")
+    print(pages[0].page_content if pages else "PDF is empty.")
+
+from langchain.vectorstores import Chroma
+from langchain.embeddings.openai import OpenAIEmbeddings
+persist_directory = 'docs/chroma/'
+embedding = OpenAIEmbeddings()
+vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
+
+from langchain.chat_models import ChatOpenAI
+llm = ChatOpenAI(model_name='gpt-4', temperature=0)
+
+from langchain.prompts import PromptTemplate
+template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. Always say "thanks for asking!" at the end of the answer. 
+{context}
+Question: {question}
+Helpful Answer:"""
+QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],template=template,)
+
+from langchain.chains import RetrievalQA
+question = "Explain the importance of technology in education."
+qa_chain = RetrievalQA.from_chain_type(llm,
+                                       retriever=vectordb.as_retriever(),
+                                       return_source_documents=True,
+                                       chain_type_kwargs={"prompt": QA_CHAIN_PROMPT})
+
+result = qa_chain({"query": question})
+print("Question: ", question)
+print("Answer: ", result["result"])
+
+`````
 ### OUTPUT:
 
+<img width="750" height="171" alt="image" src="https://github.com/user-attachments/assets/fd0d3075-b692-45ab-b7f6-a08893b6fb1e" />
+
+
+
 ### RESULT:
+Thus, a question-answering chatbot capable of processing and extracting information from a provided PDF document using LangChain was implemented and evaluated for its effectiveness by testing its responses to diverse queries derived from the document's content successfully.
